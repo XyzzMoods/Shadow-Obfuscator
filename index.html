@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeObfuscator - Obfuscator JavaScript & HTML Terbaik</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .drop-zone {
+            border: 2px dashed #cbd5e0;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .drop-zone.drag-over {
+            border-color: #667eea;
+            background-color: rgba(102, 126, 234, 0.05);
+        }
+        
+        .code-editor {
+            background-color: #1a202c;
+            color: #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .tab-active {
+            border-bottom: 2px solid #667eea;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+        
+        .notification {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #667eea;
+        }
+        
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #667eea;
+        }
+        
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-lock text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold">Shadow <span class="text-blue-200">Obfuscator</span></h1>
+                        <p class="text-sm opacity-80">JavaScript & HTML Obfuscation Tools</p>
+                    </div>
+                </div>
+                
+                <nav class="hidden md:flex space-x-6">
+                    <a href="#" class="text-white opacity-90 hover:opacity-100 transition-opacity">Beranda</a>
+                    <a href="#" class="text-white opacity-90 hover:opacity-100 transition-opacity">Fitur</a>
+                    <a href="#" class="text-white opacity-90 hover:opacity-100 transition-opacity">Pricing</a>
+                    <a href="#" class="text-white opacity-90 hover:opacity-100 transition-opacity">Bantuan</a>
+                </nav>
+                
+                <button class="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
+                    Login
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="gradient-bg text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">Lindungi Kode Anda dengan Obfuscation</h2>
+            <p class="text-xl opacity-90 max-w-3xl mx-auto mb-8">
+                Transformasikan kode JavaScript dan HTML Anda menjadi versi yang sulit dibaca namun tetap berfungsi, untuk melindungi properti intelektual Anda.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <button class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
+                    <i class="fas fa-bolt mr-2"></i>Obfuscate Sekarang
+                </button>
+                <button class="border border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
+                    <i class="fas fa-book mr-2"></i>Pelajari Lebih Lanjut
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-12 -mt-12">
+        <div class="bg-white rounded-xl shadow-xl overflow-hidden card-hover">
+            <div class="flex border-b">
+                <button id="js-tab" class="tab-active px-6 py-4 font-semibold text-gray-800">
+                    <i class="fas fa-code mr-2"></i>JavaScript Obfuscator
+                </button>
+                <button id="html-tab" class="px-6 py-4 font-semibold text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-file-code mr-2"></i>HTML Obfuscator
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <!-- Upload Section -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold mb-4">Upload Kode Anda</h3>
+                    <div id="drop-zone" class="drop-zone">
+                        <div class="text-center">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
+                            <p class="text-gray-600 mb-2">Drag & drop file Anda di sini atau</p>
+                            <label for="file-input" class="cursor-pointer bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors inline-block">
+                                <i class="fas fa-upload mr-2"></i>Pilih File
+                            </label>
+                            <input type="file" id="file-input" class="hidden" accept=".js,.html,.txt">
+                            <p class="text-sm text-gray-500 mt-2">Maksimal 5MB. Format: .js, .html, .txt</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Original Code -->
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">Kode Asli</h3>
+                        <div class="code-editor" id="original-code">
+                            <div class="text-gray-500 text-center py-12">
+                                <i class="fas fa-code text-3xl mb-3"></i>
+                                <p>Upload file atau ketik kode Anda di sini</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex justify-between">
+                            <button id="clear-btn" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-trash mr-2"></i>Bersihkan
+                            </button>
+                            <button id="sample-btn" class="text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-magic mr-2"></i>Gunakan Contoh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Obfuscated Code -->
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">Kode Terobfuscasi</h3>
+                        <div class="code-editor" id="obfuscated-code">
+                            <div class="text-gray-500 text-center py-12">
+                                <i class="fas fa-lock text-3xl mb-3"></i>
+                                <p>Hasil obfuscation akan muncul di sini</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex justify-between">
+                            <button id="copy-btn" class="text-gray-500 hover:text-gray-700" disabled>
+                                <i class="fas fa-copy mr-2"></i>Salin
+                            </button>
+                            <button id="download-btn" class="text-blue-600 hover:text-blue-800" disabled>
+                                <i class="fas fa-download mr-2"></i>Download
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Obfuscation Options -->
+                <div class="mt-8 border-t pt-8">
+                    <h3 class="text-xl font-semibold mb-4">Opsi Obfuscation</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div>
+                            <label class="flex items-center mb-2">
+                                <input type="checkbox" class="mr-2" id="rename-vars" checked>
+                                <span class="font-medium">Ubah Nama Variabel</span>
+                            </label>
+                            <p class="text-sm text-gray-600">Mengganti nama variabel dengan karakter acak</p>
+                        </div>
+                        
+                        <div>
+                            <label class="flex items-center mb-2">
+                                <input type="checkbox" class="mr-2" id="string-encode" checked>
+                                <span class="font-medium">Encode String</span>
+                            </label>
+                            <p class="text-sm text-gray-600">Mengenkripsi string dalam kode</p>
+                        </div>
+                        
+                        <div>
+                            <label class="flex items-center mb-2">
+                                <input type="checkbox" class="mr-2" id="control-flow" checked>
+                                <span class="font-medium">Kontrol Alir</span>
+                            </label>
+                            <p class="text-sm text-gray-600">Mengaburkan alur kontrol program</p>
+                        </div>
+                        
+                        <div>
+                            <label class="flex items-center mb-2">
+                                <input type="checkbox" class="mr-2" id="dead-code">
+                                <span class="font-medium">Kode Mati</span>
+                            </label>
+                            <p class="text-sm text-gray-600">Menambahkan kode tidak berguna untuk mengaburkan</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <label class="block font-medium mb-2">Tingkat Obfuscation</label>
+                        <div class="flex items-center space-x-4">
+                            <span class="text-sm text-gray-600">Rendah</span>
+                            <input type="range" min="1" max="3" value="2" class="w-full" id="obfuscation-level">
+                            <span class="text-sm text-gray-600">Tinggi</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-center">
+                        <button id="obfuscate-btn" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center">
+                            <i class="fas fa-lock mr-2"></i>Obfuscate Kode
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Features Section -->
+        <div class="mt-16">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Mengapa Menggunakan Obfuscator?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-md card-hover">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-shield-alt text-blue-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Perlindungan Kode</h3>
+                    <p class="text-gray-600">Lindungi properti intelektual Anda dengan membuat kode sulit dibaca dan dimengerti oleh pihak lain.</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md card-hover">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-tachometer-alt text-green-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Kinerja Optimal</h3>
+                    <p class="text-gray-600">Kode terobfuscasi tetap mempertahankan fungsionalitas asli dengan overhead performa minimal.</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md card-hover">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-user-secret text-purple-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Privasi Data</h3>
+                    <p class="text-gray-600">Sembunyikan logika bisnis sensitif dan informasi rahasia dari akses tidak sah.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 mt-16">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h3 class="text-xl font-bold">Shadow <span class="text-blue-400">Obfuscator</span></h3>
+                    </div>
+                    <p class="text-gray-400 mb-4">Alat obfuscation JavaScript dan HTML terdepan untuk melindungi kode Anda.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-github text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Produk</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Script Bot WhatsApp</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Script Bot Telegram</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Panel 1 GB - Unlimited</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Jasa Create Website</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Sumber Daya</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Dokumentasi</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Tutorial</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">FAQ</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Kontak</h4>
+                    <div class="space-y-2">
+                        <p class="text-gray-400"><i class="fas fa-envelope mr-2"></i> xyzzmoods@gmail.com</p>
+                        <p class="text-gray-400"><i class="fab fa-twitter mr-2"></i> @XyzzMoodss</p>
+                        <p class="text-gray-400"><i class="fas fa-globe mr-2"></i> xyzzmoods.panelmaster.biz.id</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center">
+                <p class="text-gray-400">© 2025 Obfuscator Shadow Executive. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Notification -->
+    <div id="notification" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg hidden notification">
+        <div class="flex items-center">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span id="notification-text">Operasi berhasil!</span>
+        </div>
+    </div>
+
+    <script>
+        // Sample JavaScript code
+        const sampleJSCode = `// Contoh fungsi JavaScript sederhana
+function calculateTotal(price, quantity, taxRate) {
+    const subtotal = price * quantity;
+    const tax = subtotal * taxRate;
+    const total = subtotal + tax;
+    
+    return {
+        subtotal: subtotal,
+        tax: tax,
+        total: total
+    };
+}
+
+// Fungsi untuk menampilkan hasil
+function displayResults(results) {
+    console.log('Subtotal: $' + results.subtotal.toFixed(2));
+    console.log('Pajak: $' + results.tax.toFixed(2));
+    console.log('Total: $' + results.total.toFixed(2));
+}
+
+// Contoh penggunaan
+const results = calculateTotal(29.99, 3, 0.08);
+displayResults(results);`;
+
+        // Sample HTML code
+        const sampleHTMLCode = `<!DOCTYPE html>
+<html>
+<head>
+    <title>Contoh Halaman Web</title>
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Selamat Datang di Website Kami</h1>
+            <p>Ini adalah contoh halaman HTML sederhana</p>
+        </header>
+        
+        <main>
+            <section>
+                <h2>Tentang Kami</h2>
+                <p>Kami adalah perusahaan yang berfokus pada pengembangan web dan aplikasi.</p>
+            </section>
+            
+            <section>
+                <h2>Layanan Kami</h2>
+                <ul>
+                    <li>Pengembangan Web</li>
+                    <li>Pengembangan Aplikasi Mobile</li>
+                    <li>Konsultasi TI</li>
+                </ul>
+            </section>
+        </main>
+        
+        <footer>
+            <p>&copy; 2024 Perusahaan Kami. Semua hak dilindungi.</p>
+        </footer>
+    </div>
+    
+    <script>
+        // JavaScript sederhana untuk halaman
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Halaman telah dimuat sepenuhnya');
+        });
+    <\/script>
+</body>
+</html>`;
+
+        // DOM Elements
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const originalCode = document.getElementById('original-code');
+        const obfuscatedCode = document.getElementById('obfuscated-code');
+        const clearBtn = document.getElementById('clear-btn');
+        const sampleBtn = document.getElementById('sample-btn');
+        const copyBtn = document.getElementById('copy-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const obfuscateBtn = document.getElementById('obfuscate-btn');
+        const jsTab = document.getElementById('js-tab');
+        const htmlTab = document.getElementById('html-tab');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notification-text');
+
+        let currentMode = 'js'; // 'js' or 'html'
+        let currentCode = '';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Drag and drop
+            dropZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                dropZone.classList.add('drag-over');
+            });
+
+            dropZone.addEventListener('dragleave', function() {
+                dropZone.classList.remove('drag-over');
+            });
+
+            dropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                
+                if (e.dataTransfer.files.length > 0) {
+                    handleFileUpload(e.dataTransfer.files[0]);
+                }
+            });
+
+            // File input change
+            fileInput.addEventListener('change', function() {
+                if (fileInput.files.length > 0) {
+                    handleFileUpload(fileInput.files[0]);
+                }
+            });
+
+            // Buttons
+            clearBtn.addEventListener('click', clearCode);
+            sampleBtn.addEventListener('click', loadSampleCode);
+            copyBtn.addEventListener('click', copyObfuscatedCode);
+            downloadBtn.addEventListener('click', downloadObfuscatedCode);
+            obfuscateBtn.addEventListener('click', obfuscateCode);
+
+            // Tabs
+            jsTab.addEventListener('click', function() {
+                setActiveTab('js');
+            });
+
+            htmlTab.addEventListener('click', function() {
+                setActiveTab('html');
+            });
+        }
+
+        function setActiveTab(tab) {
+            if (tab === 'js') {
+                jsTab.classList.add('tab-active');
+                htmlTab.classList.remove('tab-active');
+                currentMode = 'js';
+            } else {
+                htmlTab.classList.add('tab-active');
+                jsTab.classList.remove('tab-active');
+                currentMode = 'html';
+            }
+            
+            // Clear code when switching tabs
+            clearCode();
+        }
+
+        function handleFileUpload(file) {
+            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                showNotification('File terlalu besar. Maksimal 5MB.', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentCode = e.target.result;
+                displayOriginalCode(currentCode);
+            };
+            reader.readAsText(file);
+        }
+
+        function displayOriginalCode(code) {
+            originalCode.innerHTML = `<pre class="code-font">${escapeHtml(code)}</pre>`;
+        }
+
+        function displayObfuscatedCode(code) {
+            obfuscatedCode.innerHTML = `<pre class="code-font">${escapeHtml(code)}</pre>`;
+            copyBtn.disabled = false;
+            downloadBtn.disabled = false;
+        }
+
+        function clearCode() {
+            originalCode.innerHTML = `
+                <div class="text-gray-500 text-center py-12">
+                    <i class="fas fa-code text-3xl mb-3"></i>
+                    <p>Upload file atau ketik kode Anda di sini</p>
+                </div>
+            `;
+            obfuscatedCode.innerHTML = `
+                <div class="text-gray-500 text-center py-12">
+                    <i class="fas fa-lock text-3xl mb-3"></i>
+                    <p>Hasil obfuscation akan muncul di sini</p>
+                </div>
+            `;
+            currentCode = '';
+            copyBtn.disabled = true;
+            downloadBtn.disabled = true;
+        }
+
+        function loadSampleCode() {
+            currentCode = currentMode === 'js' ? sampleJSCode : sampleHTMLCode;
+            displayOriginalCode(currentCode);
+        }
+
+        function copyObfuscatedCode() {
+            const code = obfuscatedCode.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                showNotification('Kode berhasil disalin!');
+            });
+        }
+
+        function downloadObfuscatedCode() {
+            const code = obfuscatedCode.querySelector('pre').textContent;
+            const blob = new Blob([code], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `obfuscated.${currentMode === 'js' ? 'js' : 'html'}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('File berhasil diunduh!');
+        }
+
+        function obfuscateCode() {
+            if (!currentCode) {
+                showNotification('Tidak ada kode untuk di-obfuscate.', 'error');
+                return;
+            }
+
+            // Show loading state
+            obfuscateBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Memproses...';
+            obfuscateBtn.disabled = true;
+
+            // Simulate processing delay
+            setTimeout(() => {
+                const obfuscated = performObfuscation(currentCode);
+                displayObfuscatedCode(obfuscated);
+                
+                // Reset button
+                obfuscateBtn.innerHTML = '<i class="fas fa-lock mr-2"></i>Obfuscate Kode';
+                obfuscateBtn.disabled = false;
+                
+                showNotification('Kode berhasil di-obfuscate!');
+            }, 1000);
+        }
+
+        function performObfuscation(code) {
+            // Simple obfuscation for demonstration purposes
+            // In a real application, you would use a more sophisticated algorithm
+            
+            const level = parseInt(document.getElementById('obfuscation-level').value);
+            const renameVars = document.getElementById('rename-vars').checked;
+            const stringEncode = document.getElementById('string-encode').checked;
+            const controlFlow = document.getElementById('control-flow').checked;
+            const deadCode = document.getElementById('dead-code').checked;
+            
+            let result = code;
+            
+            if (currentMode === 'js') {
+                // JavaScript obfuscation
+                if (renameVars) {
+                    // Simple variable renaming (for demo only)
+                    result = result.replace(/function\s+([a-zA-Z_$][a-zA-Z_$0-9]*)/g, 'function $1_obf');
+                    result = result.replace(/(var|let|const)\s+([a-zA-Z_$][a-zA-Z_$0-9]*)/g, '$1 $2_obf');
+                }
+                
+                if (stringEncode) {
+                    // Simple string encoding (for demo only)
+                    result = result.replace(/("([^"\\]|\\.)*"|'([^'\\]|\\.)*')/g, function(match) {
+                        return btoa(match).split('').reverse().join('');
+                    });
+                }
+                
+                if (controlFlow) {
+                    // Add some control flow obfuscation (for demo only)
+                    result = result.replace(/if\s*\(([^)]+)\)\s*{/g, 'if(!!$1){');
+                }
+                
+                if (deadCode) {
+                    // Add dead code (for demo only)
+                    result = '// Obfuscated with CodeObfuscator\n' + 
+                             'var _0xdeadcode = function() { return false; };\n' +
+                             'if (_0xdeadcode()) { console.log("This is dead code"); }\n\n' +
+                             result;
+                }
+            } else {
+                // HTML obfuscation
+                if (stringEncode) {
+                    // Simple encoding of text content (for demo only)
+                    result = result.replace(/>([^<]+)</g, function(match, p1) {
+                        return '>' + p1.split('').map(c => {
+                            return c === ' ' ? ' ' : '&#x' + c.charCodeAt(0).toString(16) + ';';
+                        }).join('') + '<';
+                    });
+                }
+            }
+            
+            return result;
+        }
+
+        function showNotification(message, type = 'success') {
+            notificationText.textContent = message;
+            
+            if (type === 'error') {
+                notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg notification';
+            } else {
+                notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg notification';
+            }
+            
+            notification.classList.remove('hidden');
+            
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
+
